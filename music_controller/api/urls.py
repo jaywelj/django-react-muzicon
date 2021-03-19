@@ -5,6 +5,7 @@ from .views import (
     RoomGetView,
     RoomJoinView,
     RoomView,
+    RoomUpdateView,
     RedirectUserView,
 )
     
@@ -12,6 +13,7 @@ from .views import (
 urlpatterns = [
     path('rooms', RoomView.as_view()),
     path('create-room', RoomCreateView.as_view()),
+    path('update-room', RoomUpdateView.as_view()),
     path('get-room', RoomGetView.as_view()),
     path('join-room', RoomJoinView.as_view()),
     path('leave-room', RoomLeaveView.as_view()),

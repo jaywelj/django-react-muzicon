@@ -3,6 +3,7 @@ from .models import Room
 
 
 class RoomSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Room
         fields = (
@@ -15,7 +16,8 @@ class RoomSerializer(serializers.ModelSerializer):
         )
 
 
-class RoomCreateSerializer(serializers.ModelSerializer):
+class RoomCreateUpdateSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Room
         fields = (
