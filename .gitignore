@@ -39,10 +39,10 @@ npm-debug.log
 /output/
 /cache/
 boilerplate.zip
-
 # Spritesmith
 spritesmith-generated/
 spritesmith.scss
 
 # templated email
 tmp_email/
+music_controller/spotify/credentials.py
