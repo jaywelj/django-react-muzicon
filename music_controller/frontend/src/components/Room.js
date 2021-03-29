@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { Grid, Button, Typography, ButtonGroup } from "@material-ui/core";
-import { Link } from "react-router-dom";
 import RoomCreatePage from "./RoomCreatePage";
+import MusicPlayer from "./MusicPlayer";
 
 export default class Room extends Component {
     constructor(props) {
@@ -11,9 +11,38 @@ export default class Room extends Component {
             guestCanPause: false,
             isHost: false,
             showSettings: false,
+            spotifyAuthenticated: false,
+            song: {},
         };
         this.roomCode = this.props.match.params.roomCode;
         this.getRoomDetails();
+        this.getCurrentSong();
+    }
+
+    componentDidMount() {
+        this.interval = setInterval(this.getCurrentSong, 500);
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.interval);
+    }
+
+    authenticateSpotify() {
+        fetch("/spotify/is-authenticated")
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.status) {
+                    this.setState({
+                        spotifyAuthenticated: data.status,
+                    });
+                } else {
+                    fetch("/spotify/get-auth-url")
+                        .then((response) => response.json())
+                        .then((data) => {
+                            window.location.replace(data.url);
+                        });
+                }
+            });
     }
 
     getRoomDetails = () => {
@@ -31,6 +60,9 @@ export default class Room extends Component {
                     guestCanPause: data.guest_can_pause,
                     isHost: data.is_host,
                 });
+                if (this.state.isHost) {
+                    this.authenticateSpotify();
+                }
             });
     };
 
@@ -65,6 +97,21 @@ export default class Room extends Component {
         );
     };
 
+    getCurrentSong = () => {
+        fetch("/spotify/current-song")
+            .then((response) => {
+                if (!response.ok) {
+                    return {};
+                } else {
+                    return response.json();
+                }
+            })
+            .then((data) => {
+                console.log(data);
+                this.setState({ song: data });
+            });
+    };
+
     renderSettings = () => {
         return (
             <Grid container spacing={1} align="center">
@@ -77,7 +124,6 @@ export default class Room extends Component {
                         updateCallback={this.getRoomDetails}
                     />
                 </Grid>
-
                 <Grid item xs={12}>
                     <Button
                         variant="contained"
@@ -102,21 +148,7 @@ export default class Room extends Component {
                         Code: {this.roomCode}
                     </Typography>
                 </Grid>
-                <Grid item xs={12}>
-                    <Typography variant="h5" component="h5">
-                        Votes: {this.state.votesToSkip}
-                    </Typography>
-                </Grid>
-                <Grid item xs={12}>
-                    <Typography variant="h5" component="h5">
-                        Guest Can Pause: {this.state.guestCanPause.toString()}
-                    </Typography>
-                </Grid>
-                <Grid item xs={12}>
-                    <Typography variant="h5" component="h5">
-                        Host: {this.state.isHost.toString()}
-                    </Typography>
-                </Grid>
+                <MusicPlayer {...this.state.song} />
                 {this.state.isHost ? this.renderSettingsButton() : null}
                 <Grid item xs={12}>
                     <Button

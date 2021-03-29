@@ -9,6 +9,7 @@ from django.shortcuts import render
 from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from spotify.models import SpotifyToken
 
 
 # Create your views here.
@@ -26,7 +27,6 @@ class RoomJoinView(APIView):
             request.session.create()
         
         code = request.data.get('code')
-        print(code)
         if code:
             room = Room.objects.filter(code=code).first()
             if room:
@@ -134,6 +134,8 @@ class RoomLeaveView(APIView):
             room = Room.objects.filter(host=host).first()
             if room:
                 room.delete()
+                print(SpotifyToken.objects.filter(user=room.host))
+                SpotifyToken.objects.filter(user=room.host).delete()
                 message = "Room Closed"
 
         return Response(
@@ -183,5 +185,4 @@ class RoomUpdateView(APIView):
                 {"BAD REQUEST": "Invalid data"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-
                  
